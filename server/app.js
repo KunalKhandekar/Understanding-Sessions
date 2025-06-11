@@ -24,7 +24,7 @@ app.use(
   })
 );
 
-app.use(cookieParser());
+app.use(cookieParser("Secret-Key"));
 app.use(express.json());
 
 // Routes

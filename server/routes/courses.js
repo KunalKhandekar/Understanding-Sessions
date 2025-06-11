@@ -1,25 +1,22 @@
 import express from "express";
-import { sessions } from "../app.js";
 import Course from "../models/Course.js";
-import mongoose from "mongoose";
+import Session from "../models/Session.js";
 
 const router = express.Router();
 
 // GET all courses
 router.get("/", async (req, res) => {
   try {
-    const { sessionID } = req.cookies;
+    const { sessionID } = req.signedCookies;
     const courses = await Course.find();
 
     if (!sessionID) {
-      const guestSession = new mongoose.Types.ObjectId();
-      sessions.push({ _id: guestSession, cart: [] });
-      return res
-        .cookie("sessionID", guestSession, {
-          httpOnly: true,
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
-        .json(courses);
+      const guestSession = await Session.create({});
+      res.cookie("sessionID", guestSession._id, {
+        httpOnly: true,
+        signed: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
     }
 
     res.json(courses);

@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { addToCartServer, getCartItem, removeCartItem } from "../api/courseApi";
+import { createContext, useContext, useEffect, useState } from "react";
+import { addToCartApi, removeCartItemApi } from "../api/cartApi";
+import { getCartItem } from "../api/courseApi";
 
 const CartContext = createContext(undefined);
 
@@ -15,32 +16,26 @@ export function CartProvider({ children }) {
         console.error("Failed to load cart items:", error);
       }
     };
-
     fetchCart();
-  }, []);
+  }, [addToCartApi]);
 
   const addToCart = async (course) => {
     setCart((prevCart) => {
       const existingCourse = prevCart.find((item) => item.name === course.name);
-      let updatedCart = [];
       if (existingCourse) {
-        updatedCart = prevCart.map((item) =>
+        return prevCart.map((item) =>
           item.name === course.name
             ? { ...item, quantity: (item.quantity || 1) + 1 }
             : item
         );
-      } else {
-        updatedCart = [...prevCart, { ...course, quantity: 1 }];
       }
-      addToCartServer(updatedCart);
-      return updatedCart;
+      return [...prevCart, { ...course, quantity: 1 }];
     });
   };
 
   const removeFromCart = async (course) => {
-    setCart((prevCart) =>
-      prevCart.filter((item) => item.name !== course.name));
-    removeCartItem(course.name);
+    setCart((prevCart) => prevCart.filter((item) => item.name !== course.name));
+    await removeCartItemApi(course._id);
   };
 
   const cartCount = cart.reduce(
