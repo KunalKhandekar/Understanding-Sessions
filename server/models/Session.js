@@ -16,9 +16,14 @@ const sessionSchema = new mongoose.Schema(
         },
       ],
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     expiry: {
       type: Number,
       default: () => Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 7),
+      // expires: 0,
     },
   },
   { timestamps: true }

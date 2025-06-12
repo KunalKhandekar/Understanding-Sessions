@@ -1,24 +1,42 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import axiosInstance from "../api/axiosInstance";
 
 const AuthContext = createContext(undefined);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState();
 
-  const login = (email, password) => {
-    // In a real app, this would make an API call
-    const userData = { email, name: email.split("@")[0] };
-    setUser(userData);
+  useEffect(() => {
+    (async () => {
+      const { data } = await axiosInstance.get("/auth/profile");
+      setUser(data);
+    })();
+  }, []);
+
+  const login = async (email, password) => {
+    const userData = { email, password };
+    try {
+      const { data } = await axiosInstance.post("/auth/login", userData);
+      setUser(data.user);
+      return true;
+    } catch (error) {
+      console.log(error?.response?.data?.message);
+    }
   };
 
-  const register = (email, password) => {
-    // In a real app, this would make an API call
-    const userData = { email, name: email.split("@")[0] };
-    setUser(userData);
+  const register = async (name, email, password) => {
+    const userData = { name, email, password };
+    try {
+      const { data } = await axiosInstance.post("/auth/register", userData);
+      return true;
+    } catch (error) {
+      console.log(error?.response?.data?.message);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    await axiosInstance.post("/auth/logout");
+    window.location.reload();
   };
 
   return (

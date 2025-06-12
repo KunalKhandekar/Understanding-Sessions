@@ -1,12 +1,17 @@
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 export default function Register() {
   const [name, setName] = useState("Shubham Semwal");
   const [email, setEmail] = useState("shubham@gmail.com");
   const [password, setPassword] = useState("shubham@123");
+  const navigate = useNavigate();
+  const { register } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ name, email, password });
+    const res = await register(name, email, password);
+    if (res) navigate("/login");
   };
 
   return (
